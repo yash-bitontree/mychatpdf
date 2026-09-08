@@ -1,0 +1,397 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Baseline vs Current RAG QA Comparison</title>
+  <style>
+    @page { size: A4; margin: 15mm 13mm 17mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #172033;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 10.3px;
+      line-height: 1.45;
+      background: #fff;
+    }
+    h1, h2, h3 { margin: 0; color: #111827; }
+    h1 { font-size: 25px; letter-spacing: -0.1px; }
+    h2 {
+      margin-top: 24px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #d8dee9;
+      font-size: 16px;
+    }
+    h3 { margin-top: 14px; font-size: 12px; }
+    p { margin: 6px 0; }
+    code {
+      border-radius: 3px;
+      background: #eef2f7;
+      padding: 1px 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 9px;
+    }
+    .cover {
+      padding: 18px 20px;
+      border: 1px solid #d8dee9;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f8fafc, #eef6f5);
+      margin-bottom: 16px;
+    }
+    .subtitle { max-width: 680px; margin-top: 8px; color: #4b5563; font-size: 11px; }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px 18px;
+      margin-top: 14px;
+      color: #475569;
+      font-size: 9.2px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .card {
+      padding: 10px;
+      border: 1px solid #d8dee9;
+      border-radius: 8px;
+      background: #fff;
+      min-height: 70px;
+    }
+    .card .value { font-size: 20px; font-weight: 700; color: #0f766e; }
+    .card .label { margin-top: 2px; color: #64748b; font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .note {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-left: 4px solid #0f766e;
+      background: #f0fdfa;
+      color: #334155;
+    }
+    .warning {
+      border-left-color: #d97706;
+      background: #fffbeb;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .panel {
+      border: 1px solid #d8dee9;
+      border-radius: 8px;
+      padding: 10px;
+      page-break-inside: avoid;
+      background: #fff;
+    }
+    .panel h3 { margin-top: 0; color: #0f766e; }
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    li { margin: 4px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      page-break-inside: auto;
+    }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; }
+    th {
+      padding: 7px 8px;
+      background: #1f2937;
+      color: white;
+      font-size: 8.7px;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 7px 8px;
+      border: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) td { background: #f8fafc; }
+    .number { text-align: right; white-space: nowrap; }
+    .status {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 8.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .status.good { color: #166534; background: #dcfce7; }
+    .status.warn { color: #92400e; background: #fef3c7; }
+    .status.missing { color: #991b1b; background: #fee2e2; }
+    .qa-card {
+      margin-top: 10px;
+      border: 1px solid #d8dee9;
+      border-radius: 8px;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+    .qa-head {
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 700;
+    }
+    .qa-body {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.15fr);
+    }
+    .qa-body > div { padding: 9px 10px; }
+    .qa-current { border-left: 1px solid #e2e8f0; background: #fbfdff; }
+    .label {
+      margin: 0 0 4px;
+      color: #64748b;
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .small { color: #475569; font-size: 9.2px; }
+    .pre {
+      white-space: pre-wrap;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 8.5px;
+      line-height: 1.35;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <h1>Baseline vs Current RAG QA Comparison</h1>
+    <p class="subtitle">Comparison of the already pushed repository state against the current local QA/testing branch used to generate the PDF extraction answer-quality report.</p>
+    <div class="meta">
+      <div><strong>Generated:</strong> 2026-06-16T10:45:27.547Z</div>
+      <div><strong>Baseline pushed commit:</strong> 4bd4676 (HEAD -&gt; codex/phase-1-mvp, origin/codex/phase-1-mvp, origin/HEAD) Merge pull request #1 from vibhandikyash/code-review-production-ready</div>
+      <div><strong>Current local state:</strong> Unpushed QA/testing changes on the same branch</div>
+      <div><strong>Repository:</strong> vibhandikyash/mychatpdf</div>
+    </div>
+    <div class="cards">
+      <div class="card"><div class="value">6</div><div class="label">Current PDFs Tested</div></div>
+      <div class="card"><div class="value">66</div><div class="label">Current QA Rows</div></div>
+      <div class="card"><div class="value">10</div><div class="label">Current Answer Issues</div></div>
+      <div class="card"><div class="value">4</div><div class="label">Expected No-Text Rows</div></div>
+    </div>
+  </section>
+
+  <h2>Executive Conclusion</h2>
+  <p class="note warning"><strong>Important:</strong> the already pushed code at <code>4bd4676 (HEAD -&gt; codex/phase-1-mvp, origin/codex/phase-1-mvp, origin/HEAD) Merge pull request #1 from vibhandikyash/code-review-production-ready</code> cannot reproduce the polished PDF QA report by itself. It does not include the manual testing harness, sample PDFs, browser e2e config, backend e2e test, regression script, or report generator. The current local branch adds those QA artifacts and one browser runtime fix.</p>
+  <div class="grid-2">
+    <section class="panel">
+      <h3>What the pushed code proves</h3>
+      <ul>
+        <li>The main application codebase exists at the remote baseline commit.</li>
+        <li>It contains regular backend/frontend code and existing tests.</li>
+        <li>It does not contain a repeatable manager-facing PDF extraction QA report workflow.</li>
+      </ul>
+    </section>
+    <section class="panel">
+      <h3>What the current local code proves</h3>
+      <ul>
+        <li>Manual PDF extraction behavior was audited on six synthetic PDFs.</li>
+        <li>Sixty-six question/answer rows were recorded with citations and issue notes.</li>
+        <li>Automated backend, frontend, browser e2e, build, and manual regression checks passed locally.</li>
+      </ul>
+    </section>
+  </div>
+
+  <h2>Baseline Capability Comparison</h2>
+  <table>
+    <thead><tr><th>Capability</th><th>Already Pushed Code</th><th>Current Local QA Code</th><th>Impact</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Manual PDF extraction QA report</td>
+        <td><span class="status missing">Not present in pushed code</span></td>
+        <td>Generated as Markdown, HTML, DOCX-compatible copy, and polished PDF</td>
+        <td>Manager can review concrete questions, answers, citations, and extraction issues.</td>
+      </tr><tr>
+        <td>Manual local API for PDF QA</td>
+        <td><span class="status missing">Not present in pushed code</span></td>
+        <td>Present in manual-testing/manual-mock-api.cjs</td>
+        <td>Manual testing can run without Clerk, object storage, OpenAI, Pinecone, Redis, or Postgres credentials.</td>
+      </tr><tr>
+        <td>Browser e2e test coverage</td>
+        <td><span class="status missing">Not present in pushed code</span></td>
+        <td>Playwright upload/chat/citation/refresh and validation tests added</td>
+        <td>The frontend flow is verified through the real UI instead of only unit tests.</td>
+      </tr><tr>
+        <td>Backend RAG pipeline e2e test</td>
+        <td><span class="status missing">Not present in pushed code</span></td>
+        <td>Fake-service pipeline test added</td>
+        <td>Upload, extraction, processing, chat response, citation, and history persistence are covered together.</td>
+      </tr><tr>
+        <td>Test-only auth bypass</td>
+        <td><span class="status missing">Not present in pushed code</span></td>
+        <td>VITE_E2E_AUTH_BYPASS=true path added for tests only</td>
+        <td>Tests can enter protected app screens without Clerk test credentials; normal Clerk behavior remains unchanged unless the env flag is set.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Answer Quality Evidence Comparison</h2>
+  <p class="note">The baseline side is marked as unavailable because the pushed repository does not include the same manual QA machinery. The current side shows the actual answer evidence generated by the local testing pipeline.</p>
+  <article class="qa-card">
+    <div class="qa-head">1. 02_aurorachat_product_spec_rag.pdf - What vector database is selected for production?</div>
+    <div class="qa-body">
+      <div>
+        <p class="label">Already Pushed Code Output</p>
+        <p>No pushed-code manual QA output is available. The pushed commit has no sample PDF set, manual mock API, regression script, or report generator to reproduce this answer.</p>
+      </div>
+      <div class="qa-current">
+        <p class="label">Current Local QA Output</p>
+        <p>The document says: 1. The vector database is Pinecone for production; local tests can use a mocked vector store. 2. Synthetic RAG product spec with vector database and model details 3. The LLM provider is Gemini API in the proposed production architecture.</p>
+        <p class="label">Citation</p>
+        <p class="small">Page 1: The vector database is Pinecone for production; local tests can use a mocked vector store.</p>
+        <p class="label">Issue Classification</p>
+        <p class="small">No answer issue found in this run.</p>
+      </div>
+    </div>
+  </article><article class="qa-card">
+    <div class="qa-head">2. 03_kerala_travel_itinerary.pdf - What should the traveler carry?</div>
+    <div class="qa-body">
+      <div>
+        <p class="label">Already Pushed Code Output</p>
+        <p>No pushed-code manual QA output is available for this question. A reviewer would need live service credentials or a newly added harness.</p>
+      </div>
+      <div class="qa-current">
+        <p class="label">Current Local QA Output</p>
+        <p>The document says: 1. Carry rain jackets because August is monsoon season in Kerala. 2. Keep printed ID proof for hotel check-in and park entry. 3. Traveler: Aarav Sharma</p>
+        <p class="label">Citation</p>
+        <p class="small">Page 1: Carry rain jackets because August is monsoon season in Kerala.</p>
+        <p class="label">Issue Classification</p>
+        <p class="small">No answer issue found in this run.</p>
+      </div>
+    </div>
+  </article><article class="qa-card">
+    <div class="qa-head">3. 04_vendor_invoice_contract.pdf - What must Orion provide before July 5, 2026?</div>
+    <div class="qa-body">
+      <div>
+        <p class="label">Already Pushed Code Output</p>
+        <p>No pushed-code manual QA output is available for this question. The original repository does not include repeatable extraction-answer evidence.</p>
+      </div>
+      <div class="qa-current">
+        <p class="label">Current Local QA Output</p>
+        <p>The document says: 1. Orion must provide VPN access and updated runbook links before July 5, 2026. 2. Payment due date: July 30, 2026 3. Customer: Orion Retail Labs 4. Invoice number: NDS-INV-2026-0817</p>
+        <p class="label">Citation</p>
+        <p class="small">Page 1: Orion must provide VPN access and updated runbook links before July 5, 2026.</p>
+        <p class="label">Issue Classification</p>
+        <p class="small">No answer issue found in this run.</p>
+      </div>
+    </div>
+  </article><article class="qa-card">
+    <div class="qa-head">4. 06_blank_scanned_like_pdf.pdf - Summarize this document.</div>
+    <div class="qa-body">
+      <div>
+        <p class="label">Already Pushed Code Output</p>
+        <p>No pushed-code scanned-PDF QA report exists. The current audit identifies this as a no-extractable-text limitation rather than a normal summary failure.</p>
+      </div>
+      <div class="qa-current">
+        <p class="label">Current Local QA Output</p>
+        <p>I could not extract readable text from 06_blank_scanned_like_pdf.pdf. This manual mode can preview the PDF, but summaries need extractable text.</p>
+        <p class="label">Citation</p>
+        <p class="small">Page 1: No extractable text was found in the uploaded PDF.</p>
+        <p class="label">Issue Classification</p>
+        <p class="small">Expected extraction limitation: no readable text was available, and the answer reported that limitation.</p>
+      </div>
+    </div>
+  </article>
+
+  <h2>What Changed And Pipeline Impact</h2>
+  <table>
+    <thead><tr><th>Area</th><th>Change</th><th>Impact on RAG Pipeline / App</th></tr></thead>
+    <tbody>
+      <tr><td>frontend/src/api/client.ts</td><td>Bound native browser fetch with globalThis.fetch.bind(globalThis).</td><td>Fixes browser runtime API calls that can fail with an Illegal invocation error when fetch is stored and called later.</td></tr><tr><td>frontend/src/App.tsx and vite-env.d.ts</td><td>Added VITE_E2E_AUTH_BYPASS support and env typings.</td><td>Allows Playwright/manual e2e mode to use protected screens without Clerk credentials. Production auth is still Clerk unless this test flag is set.</td></tr><tr><td>frontend/playwright.config.ts and frontend/e2e/document-chat.spec.ts</td><td>Added browser e2e tests for upload, processing, chat, citation navigation, refresh history, file validation, and SSE error handling.</td><td>Covers the application flow users actually perform in the browser.</td></tr><tr><td>backend/tests/test_e2e_pipeline.py</td><td>Added a backend pipeline test with fake extractor, storage, and vector services.</td><td>Verifies the backend path from uploaded PDF through processing, grounded response, citation, and chat history without live services.</td></tr><tr><td>manual-testing/</td><td>Added sample PDFs, manual API, regression checks, test plan, and report generators.</td><td>Creates repeatable evidence for PDF extraction issues and answer quality across multiple document types.</td></tr><tr><td>docs/</td><td>Added e2e testing log and polished QA reports.</td><td>Gives management a clear audit trail of questions asked, actual responses, known limitations, and test results.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Current Validation Results</h2>
+  <table>
+    <thead><tr><th>Check</th><th>Command</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Manual API regression</td><td><code>node manual-testing/manual-api-regression.cjs</code></td><td><span class="status good">49 checks passed across six sample PDFs</span></td></tr><tr><td>Backend tests</td><td><code>cd backend; .\.venv\Scripts\python -m pytest</code></td><td><span class="status good">40 passed, 3 warnings</span></td></tr><tr><td>Frontend unit tests</td><td><code>cd frontend; npm test</code></td><td><span class="status good">7 files passed, 19 tests passed</span></td></tr><tr><td>Frontend browser e2e</td><td><code>cd frontend; npm run test:e2e</code></td><td><span class="status good">4 passed</span></td></tr><tr><td>Frontend build</td><td><code>cd frontend; npm run build</code></td><td><span class="status good">Production build passed</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Current Extraction Findings</h2>
+  <table>
+    <thead><tr><th>PDF</th><th>Pages</th><th>Chars</th><th>? Artifacts</th><th>Risk</th></tr></thead>
+    <tbody>
+      <tr><td>01_student_course_syllabus.pdf</td><td class="number">1</td><td class="number">1225</td><td class="number">20</td><td>Extraction contains 20 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>02_aurorachat_product_spec_rag.pdf</td><td class="number">1</td><td class="number">1321</td><td class="number">17</td><td>Extraction contains 17 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>03_kerala_travel_itinerary.pdf</td><td class="number">1</td><td class="number">1213</td><td class="number">20</td><td>Extraction contains 20 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>04_vendor_invoice_contract.pdf</td><td class="number">1</td><td class="number">1158</td><td class="number">18</td><td>Extraction contains 18 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>05_hr_remote_work_policy.pdf</td><td class="number">1</td><td class="number">1252</td><td class="number">14</td><td>Extraction contains 14 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>06_blank_scanned_like_pdf.pdf</td><td class="number">1</td><td class="number">0</td><td class="number">0</td><td>No extractable text found; scanned/image-only PDF path must fail gracefully or use OCR.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Issues And Recommendations</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Issue</th><th>Evidence</th><th>Severity</th><th>Recommendation</th></tr></thead>
+    <tbody>
+      <tr><td>PDF-EXT-001</td><td>Bullet symbols extract as <code>?</code> artifacts.</td><td>Raw extraction of text PDFs contains question-mark-only lines.</td><td>Low/Medium</td><td>Normalize extracted text before chunking: remove standalone <code>?</code> lines and common glyph artifacts.</td></tr><tr><td>PDF-EXT-002</td><td>Wrapped text can split a single fact across multiple lines.</td><td>Long values such as workspace users, object storage, and long itinerary lines are split by PyMuPDF text extraction.</td><td>Medium</td><td>Add extraction post-processing to join continuation lines before chunking and embedding.</td></tr><tr><td>PDF-EXT-003</td><td>Image-only/scanned PDFs have no extractable text.</td><td><code>06_blank_scanned_like_pdf.pdf</code> returns zero extracted characters and answers can only report no readable text.</td><td>High for scanned user PDFs</td><td>Show a clear scanned-PDF failure state or add OCR support if scanned PDFs are in scope.</td></tr><tr><td>PDF-ANS-001</td><td>Earlier manual test answers ranked headings above values.</td><td>Screenshot report showed answers like <code>Target release</code> without the target release value.</td><td>Fixed in manual mode</td><td>Keep regression checks for field/value questions so this does not return.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Git Evidence</h2>
+  <div class="grid-2">
+    <section class="panel">
+      <h3>Current working tree</h3>
+      <p class="pre">## codex/phase-1-mvp...origin/codex/phase-1-mvp
+ M .gitignore
+ M frontend/package-lock.json
+ M frontend/package.json
+ M frontend/src/App.tsx
+ M frontend/src/api/client.ts
+ M frontend/src/vite-env.d.ts
+ M frontend/vite.config.ts
+?? backend/tests/test_e2e_pipeline.py
+?? docs/baseline-vs-current-rag-qa-comparison.html
+?? docs/baseline-vs-current-rag-qa-comparison.pdf
+?? docs/e2e-testing-log.md
+?? docs/pdf-extraction-qa-report-polished.html
+?? docs/pdf-extraction-qa-report.md
+?? frontend/e2e/
+?? frontend/playwright.config.ts
+?? manual-testing/</p>
+    </section>
+    <section class="panel">
+      <h3>Tracked diff summary</h3>
+      <p class="pre">.gitignore                 |  4 +++
+ frontend/package-lock.json | 64 ++++++++++++++++++++++++++++++++++++++++++++++
+ frontend/package.json      |  2 ++
+ frontend/src/App.tsx       | 30 +++++++++++++++++-----
+ frontend/src/api/client.ts |  4 +--
+ frontend/src/vite-env.d.ts | 10 ++++++++
+ frontend/vite.config.ts    |  1 +
+ 7 files changed, 107 insertions(+), 8 deletions(-)</p>
+    </section>
+  </div>
+  <section class="panel" style="margin-top:10px;">
+    <h3>Untracked QA additions</h3>
+    <p class="pre">backend/tests/test_e2e_pipeline.py
+docs/baseline-vs-current-rag-qa-comparison.html
+docs/baseline-vs-current-rag-qa-comparison.pdf
+docs/e2e-testing-log.md
+docs/pdf-extraction-qa-report-polished.html
+docs/pdf-extraction-qa-report.md
+frontend/e2e/document-chat.spec.ts
+frontend/playwright.config.ts
+manual-testing/generate-baseline-comparison-report.cjs
+manual-testing/generate-pdf-extraction-qa-report.cjs
+manual-testing/generate-polished-qa-report.cjs
+manual-testing/manual-api-regression.cjs
+manual-testing/manual-e2e-test-plan.md
+manual-testing/manual-mock-api.cjs
+manual-testing/sample-pdfs/01_student_course_syllabus.pdf
+manual-testing/sample-pdfs/02_aurorachat_product_spec_rag.pdf
+manual-testing/sample-pdfs/03_kerala_travel_itinerary.pdf
+manual-testing/sample-pdfs/04_vendor_invoice_contract.pdf
+manual-testing/sample-pdfs/05_hr_remote_work_policy.pdf
+manual-testing/sample-pdfs/06_blank_scanned_like_pdf.pdf</p>
+  </section>
+
+  <h2>Answer For Manager</h2>
+  <p class="note"><strong>Recommended response:</strong> The report I shared is from the current local QA/testing branch, not from the already pushed commit alone. The pushed code does not contain the testing harness or report generator needed to reproduce this evidence. If we want the team to reproduce the same report and verify the same output quality, we should push these changes as a separate QA/testing branch or pull request. The only application runtime fix in the current code is the browser fetch binding; the rest is primarily testing, manual QA, and reporting infrastructure.</p>
+</body>
+</html>

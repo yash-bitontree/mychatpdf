@@ -1,0 +1,2 @@
+Fixture TXT file with a small amount of useful text.
+Second line of text.

@@ -1,0 +1,1528 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PDF Extraction QA Report</title>
+  <style>
+    @page { size: A4; margin: 16mm 14mm 18mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #172033;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 10.5px;
+      line-height: 1.45;
+      background: #ffffff;
+    }
+    h1, h2, h3 { margin: 0; color: #111827; }
+    h1 { font-size: 25px; letter-spacing: -0.2px; }
+    h2 {
+      margin-top: 26px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #d8dee9;
+      font-size: 16px;
+    }
+    h3 { margin-top: 18px; font-size: 13px; }
+    p { margin: 6px 0; }
+    code {
+      border-radius: 3px;
+      background: #eef2f7;
+      padding: 1px 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 9.5px;
+    }
+    .cover {
+      padding: 18px 20px;
+      border: 1px solid #d8dee9;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f8fafc, #eef6f5);
+      margin-bottom: 18px;
+    }
+    .subtitle {
+      max-width: 650px;
+      margin-top: 8px;
+      color: #4b5563;
+      font-size: 11px;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px 18px;
+      margin-top: 16px;
+      color: #475569;
+      font-size: 9.5px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .card {
+      padding: 10px;
+      border: 1px solid #d8dee9;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .card .value { font-size: 20px; font-weight: 700; color: #0f766e; }
+    .card .label { margin-top: 2px; color: #64748b; font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .finding-list {
+      margin: 12px 0 0;
+      padding-left: 18px;
+    }
+    .finding-list li { margin: 5px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      page-break-inside: auto;
+    }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; }
+    th {
+      padding: 7px 8px;
+      background: #1f2937;
+      color: white;
+      font-size: 9px;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 7px 8px;
+      border: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) td { background: #f8fafc; }
+    .number { text-align: right; white-space: nowrap; }
+    .issue-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .issue-card {
+      border: 1px solid #d8dee9;
+      border-radius: 8px;
+      padding: 10px;
+      page-break-inside: avoid;
+      background: #ffffff;
+    }
+    .issue-card h3 { margin-top: 0; color: #0f766e; }
+    .severity {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 8.5px;
+      font-weight: 700;
+    }
+    .pdf-section {
+      page-break-before: always;
+    }
+    .qa-card {
+      margin-top: 10px;
+      border: 1px solid #d8dee9;
+      border-radius: 9px;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+    .qa-head {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .question {
+      font-weight: 700;
+      font-size: 10.5px;
+      color: #111827;
+    }
+    .badge {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 3px 7px;
+      font-size: 8.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge.pass { background: #dcfce7; color: #166534; }
+    .badge.warn { background: #fef3c7; color: #92400e; }
+    .badge.fail { background: #fee2e2; color: #991b1b; }
+    .qa-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.85fr);
+      gap: 0;
+    }
+    .answer, .details { padding: 9px 10px; }
+    .details {
+      border-left: 1px solid #e2e8f0;
+      background: #fbfdff;
+    }
+    .label {
+      margin: 0 0 3px;
+      color: #64748b;
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .answer-text { margin-bottom: 8px; }
+    .small { color: #475569; font-size: 9.3px; }
+    .issue-text.fail { color: #991b1b; }
+    .issue-text.warn { color: #92400e; }
+    .issue-text.pass { color: #166534; }
+    .note {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-left: 4px solid #0f766e;
+      background: #f0fdfa;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <h1>PDF Extraction QA Report</h1>
+    <p class="subtitle">Manager-ready audit of PDF extraction behavior and question/answer responses from the local manual testing pipeline.</p>
+    <div class="meta">
+      <div><strong>Generated:</strong> 2026-06-16T09:34:35.988Z</div>
+      <div><strong>Source:</strong> Local manual QA run</div>
+      <div><strong>App:</strong> <code>configured deployment URL</code></div>
+      <div><strong>PDF folder:</strong> <code>manual-testing/sample-pdfs</code></div>
+    </div>
+    <div class="cards">
+      <div class="card"><div class="value">6</div><div class="label">PDFs Tested</div></div>
+      <div class="card"><div class="value">66</div><div class="label">Questions Asked</div></div>
+      <div class="card"><div class="value">10</div><div class="label">Answer Issues</div></div>
+      <div class="card"><div class="value">4</div><div class="label">No-Text Rows</div></div>
+    </div>
+  </section>
+
+  <h2>Executive Findings</h2>
+  <ul class="finding-list">
+    <li>Text PDFs are extractable, but bullet glyphs appear as <code>?</code> artifacts in raw extraction.</li>
+    <li>Wrapped lines can split one fact across multiple extracted lines, which can affect retrieval quality.</li>
+    <li>The scanned/image-only PDF has zero extractable text and needs OCR or a graceful failure state.</li>
+    <li>Some broad suggested prompts miss important details even when targeted custom questions work.</li>
+  </ul>
+
+  <h2>Raw Extraction Observations</h2>
+  <table>
+    <thead><tr><th>PDF</th><th>Pages</th><th>Chars</th><th>? Artifacts</th><th>Extraction Issue / Risk</th></tr></thead>
+    <tbody>
+      <tr><td>01_student_course_syllabus.pdf</td><td class="number">1</td><td class="number">1225</td><td class="number">20</td><td>Extraction contains 20 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>02_aurorachat_product_spec_rag.pdf</td><td class="number">1</td><td class="number">1321</td><td class="number">17</td><td>Extraction contains 17 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>03_kerala_travel_itinerary.pdf</td><td class="number">1</td><td class="number">1213</td><td class="number">20</td><td>Extraction contains 20 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>04_vendor_invoice_contract.pdf</td><td class="number">1</td><td class="number">1158</td><td class="number">18</td><td>Extraction contains 18 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>05_hr_remote_work_policy.pdf</td><td class="number">1</td><td class="number">1252</td><td class="number">14</td><td>Extraction contains 14 question-mark artifacts, likely from bullet glyphs.</td></tr><tr><td>06_blank_scanned_like_pdf.pdf</td><td class="number">1</td><td class="number">0</td><td class="number">0</td><td>No extractable text found; scanned/image-only PDF path must fail gracefully or use OCR.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Issues To Track</h2>
+  <div class="issue-grid">
+    <article class="issue-card">
+      <h3>PDF-EXT-001 <span class="severity">Low/Medium</span></h3>
+      <p><strong>Issue:</strong> Bullet symbols extract as <code>?</code> artifacts.</p>
+      <p><strong>Evidence:</strong> Raw extraction of text PDFs contains question-mark-only lines.</p>
+      <p><strong>Recommendation:</strong> Normalize extracted text before chunking: remove standalone <code>?</code> lines and common glyph artifacts.</p>
+    </article><article class="issue-card">
+      <h3>PDF-EXT-002 <span class="severity">Medium</span></h3>
+      <p><strong>Issue:</strong> Wrapped text can split a single fact across multiple lines.</p>
+      <p><strong>Evidence:</strong> Long values such as workspace users, object storage, and long itinerary lines are split by PyMuPDF text extraction.</p>
+      <p><strong>Recommendation:</strong> Add extraction post-processing to join continuation lines before chunking and embedding.</p>
+    </article><article class="issue-card">
+      <h3>PDF-EXT-003 <span class="severity">High for scanned user PDFs</span></h3>
+      <p><strong>Issue:</strong> Image-only/scanned PDFs have no extractable text.</p>
+      <p><strong>Evidence:</strong> <code>06_blank_scanned_like_pdf.pdf</code> returns zero extracted characters and answers can only report no readable text.</p>
+      <p><strong>Recommendation:</strong> Show a clear scanned-PDF failure state or add OCR support if scanned PDFs are in scope.</p>
+    </article><article class="issue-card">
+      <h3>PDF-ANS-001 <span class="severity">Fixed in manual mode</span></h3>
+      <p><strong>Issue:</strong> Earlier manual test answers ranked headings above values.</p>
+      <p><strong>Evidence:</strong> Screenshot report showed answers like <code>Target release</code> without the target release value.</p>
+      <p><strong>Recommendation:</strong> Keep regression checks for field/value questions so this does not return.</p>
+    </article>
+  </div>
+
+  <section class="pdf-section">
+    <h2>01_student_course_syllabus.pdf</h2>
+    <p class="note">Questions, actual responses, citations, expected keywords, and issue classification for this PDF.</p>
+    <article class="qa-card">
+        <div class="qa-head">
+          <div class="question">1. Summarize this document.</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Summary of Data Analytics Bootcamp Syllabus:<br>1. Synthetic syllabus for RAG end-to-end testing<br>2. Program: Data Analytics Bootcamp<br>3. Instructor: Dr. Nisha Rao<br>4. Duration: July 1, 2026 to August 12, 2026<br>5. Primary objective: teach practical analytics using Python, SQL, dashboards, and statistics.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Data Analytics, Python</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic syllabus for RAG end-to-end testing</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">2. What are the key takeaways?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Key takeaways from Data Analytics Bootcamp Syllabus:<br>1. Final project: analyze customer churn data and present recommendations to stakeholders.<br>2. Week 6: Final project, peer review, and presentation rehearsal.<br>3. Final project: 40 percent<br>4. Late submission policy: 10 percent penalty per calendar day unless approved in advance.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Data Analytics, Final project</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Final project: analyze customer churn data and present recommendations to stakeholders.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">3. List action items.</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Action items / next steps found in Data Analytics Bootcamp Syllabus:<br>1. Project proposal due: July 15, 2026</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">July 15, 2026, August 12, 2026</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Project proposal due: July 15, 2026</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): August 12, 2026.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">4. What should I pay attention to?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Pay attention to these details in Data Analytics Bootcamp Syllabus:<br>1. Final project: analyze customer churn data and present recommendations to stakeholders.<br>2. Week 6: Final project, peer review, and presentation rehearsal.<br>3. Final project: 40 percent<br>4. Late submission policy: 10 percent penalty per calendar day unless approved in advance.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Data Analytics, Final project</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Final project: analyze customer churn data and present recommendations to stakeholders.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">5. What is the final project about?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Final project: analyze customer churn data and present recommendations to stakeholders.<br>2. Final project: 40 percent<br>3. Week 6: Final project, peer review, and presentation rehearsal.<br>4. Project proposal due: July 15, 2026</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">customer churn</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Final project: analyze customer churn data and present recommendations to stakeholders.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">6. What are the grading weights?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Quizzes: 20 percent<br>2. Assignments: 30 percent<br>3. Final project: 40 percent<br>4. Participation: 10 percent</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Quizzes, Assignments, Final project, Participation</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Quizzes: 20 percent</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">7. When is the project proposal due?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Project proposal due: July 15, 2026<br>2. Duration: July 1, 2026 to August 12, 2026<br>3. Midpoint review: July 29, 2026<br>4. Final presentation: August 12, 2026</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">July 15, 2026</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Project proposal due: July 15, 2026</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">8. When is the final presentation?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Final presentation: August 12, 2026<br>2. Week 6: Final project, peer review, and presentation rehearsal.<br>3. Duration: July 1, 2026 to August 12, 2026<br>4. Project proposal due: July 15, 2026</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">August 12, 2026</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Final presentation: August 12, 2026</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">9. What happens if an assignment is submitted late?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Assignments: 30 percent<br>2. Late submission policy: 10 percent penalty per calendar day unless approved in advance.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">10 percent penalty</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Assignments: 30 percent</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">10. Which weeks cover SQL and dashboards?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Week 2: SQL joins, aggregations, indexes, and data quality checks.<br>2. Week 4: Visualization with dashboards and executive reporting.<br>3. Primary objective: teach practical analytics using Python, SQL, dashboards, and statistics.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Week 2, SQL, Week 4, dashboards</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Week 2: SQL joins, aggregations, indexes, and data quality checks.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">11. Who is the instructor?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Instructor: Dr. Nisha Rao<br>2. Final project: analyze customer churn data and present recommendations to stakeholders.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Dr. Nisha Rao</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Instructor: Dr. Nisha Rao</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">12. What are the office hour days and time?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says: Office hours: every Tuesday and Thursday at 5:30 PM IST.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Tuesday, Thursday, 5:30 PM</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Office hours: every Tuesday and Thursday at 5:30 PM IST.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article>
+  </section><section class="pdf-section">
+    <h2>02_aurorachat_product_spec_rag.pdf</h2>
+    <p class="note">Questions, actual responses, citations, expected keywords, and issue classification for this PDF.</p>
+    <article class="qa-card">
+        <div class="qa-head">
+          <div class="question">1. Summarize this document.</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Summary of AuroraChat Product Specification:<br>1. Synthetic RAG product spec with vector database and model details<br>2. AuroraChat Knowledge Assistant is a document Q&amp;A product for authenticated workspace users.<br>3. Each conversation is linked to one uploaded document collection.<br>4. The MVP targets internal support, policy search, and technical documentation retrieval.<br>5. Product name: AuroraChat Knowledge Assistant</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">AuroraChat, Knowledge Assistant</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic RAG product spec with vector database and model details</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">2. What are the key takeaways?</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Key takeaways from AuroraChat Product Specification:<br>1. Synthetic RAG product spec with vector database and model details<br>2. The MVP targets internal support, policy search, and technical documentation retrieval.<br>3. Spec version: 0.9.4<br>4. Target release: MVP beta on July 15, 2026</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Pinecone, Clerk</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic RAG product spec with vector database and model details</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): Pinecone, Clerk.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">3. List action items.</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Action items / next steps found in AuroraChat Product Specification:<br>1. Target release: MVP beta on July 15, 2026<br>2. Deployment target: Docker Compose for app plus PostgreSQL.<br>3. The vector database is Pinecone for production; local tests can use a mocked vector store.<br>4. The answer service must include citations with page numbers and short excerpts.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Target release, July 15, 2026</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Target release: MVP beta on July 15, 2026</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">4. What should I pay attention to?</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Pay attention to these details in AuroraChat Product Specification:<br>1. Synthetic RAG product spec with vector database and model details<br>2. The MVP targets internal support, policy search, and technical documentation retrieval.<br>3. Spec version: 0.9.4<br>4. Target release: MVP beta on July 15, 2026</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Pinecone, Clerk</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic RAG product spec with vector database and model details</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): Pinecone, Clerk.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">5. What is AuroraChat?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. AuroraChat Knowledge Assistant is a document Q&amp;A product for authenticated workspace users.<br>2. Product name: AuroraChat Knowledge Assistant</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Knowledge Assistant</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: AuroraChat Knowledge Assistant is a document Q&amp;A product for authenticated workspace users.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">6. What vector database is selected for production?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. The vector database is Pinecone for production; local tests can use a mocked vector store.<br>2. Synthetic RAG product spec with vector database and model details<br>3. The LLM provider is Gemini API in the proposed production architecture.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Pinecone</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: The vector database is Pinecone for production; local tests can use a mocked vector store.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">7. What is the target release date?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Target release: MVP beta on July 15, 2026<br>2. The MVP targets internal support, policy search, and technical documentation retrieval.<br>3. Deployment target: Docker Compose for app plus PostgreSQL.<br>4. Authentication uses Clerk JWTs validated by the backend before every protected API call.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">July 15, 2026</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Target release: MVP beta on July 15, 2026</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">8. What authentication method is used?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says: Authentication uses Clerk JWTs validated by the backend before every protected API call.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Clerk JWTs</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Authentication uses Clerk JWTs validated by the backend before every protected API call.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">9. What must the answer service include?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. The answer service must include citations with page numbers and short excerpts.<br>2. Risk: hallucinated answers if retrieval context is weak.<br>3. Mitigation: force grounded prompts and show citations below every answer.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">citations, page numbers</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: The answer service must include citations with page numbers and short excerpts.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">10. What are the main risks?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Risk: hallucinated answers if retrieval context is weak.<br>2. Mitigation: force grounded prompts and show citations below every answer.<br>3. Risk: slow document processing for large PDFs.<br>4. Mitigation: background processing queue and visible status polling.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Risk, hallucinated</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Risk: hallucinated answers if retrieval context is weak.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">11. How is hallucination risk mitigated?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Risk: hallucinated answers if retrieval context is weak.<br>2. Mitigation: force grounded prompts and show citations below every answer.<br>3. Risk: slow document processing for large PDFs.<br>4. Mitigation: background processing queue and visible status polling.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">grounded prompts, citations</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Risk: hallucinated answers if retrieval context is weak.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">12. What is the deployment target?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Deployment target: Docker Compose for app plus PostgreSQL.<br>2. The MVP targets internal support, policy search, and technical documentation retrieval.<br>3. Target release: MVP beta on July 15, 2026</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Docker Compose, PostgreSQL</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Deployment target: Docker Compose for app plus PostgreSQL.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article>
+  </section><section class="pdf-section">
+    <h2>03_kerala_travel_itinerary.pdf</h2>
+    <p class="note">Questions, actual responses, citations, expected keywords, and issue classification for this PDF.</p>
+    <article class="qa-card">
+        <div class="qa-head">
+          <div class="question">1. Summarize this document.</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Summary of Kerala Travel Itinerary:<br>1. Synthetic travel itinerary for date and plan retrieval testing<br>2. Traveler: Aarav Sharma<br>3. Destination: Kochi and Munnar, Kerala<br>4. Trip dates: August 4, 2026 to August 9, 2026<br>5. Primary purpose: family vacation</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Kerala, Aarav Sharma</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic travel itinerary for date and plan retrieval testing</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">2. What are the key takeaways?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Key takeaways from Kerala Travel Itinerary:<br>1. Synthetic travel itinerary for date and plan retrieval testing<br>2. Traveler: Aarav Sharma<br>3. Destination: Kochi and Munnar, Kerala<br>4. Primary purpose: family vacation</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Kochi, Munnar</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic travel itinerary for date and plan retrieval testing</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">3. List action items.</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Action items / next steps found in Kerala Travel Itinerary:<br>1. Synthetic travel itinerary for date and plan retrieval testing<br>2. August 4, 2026: Arrive in Kochi at 2:15 PM, check in at Harbor Lane Hotel, evening walk at<br>3. August 5, 2026: Visit Mattancherry Palace, Jewish Synagogue area, and Marine Drive.<br>4. August 6, 2026: Drive from Kochi to Munnar and stop at Cheeyappara waterfalls.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Arrive, Visit</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic travel itinerary for date and plan retrieval testing</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">4. What should I pay attention to?</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Pay attention to these details in Kerala Travel Itinerary:<br>1. Synthetic travel itinerary for date and plan retrieval testing<br>2. Traveler: Aarav Sharma<br>3. Destination: Kochi and Munnar, Kerala<br>4. Primary purpose: family vacation</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">rain jackets, ID proof</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic travel itinerary for date and plan retrieval testing</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): rain jackets, ID proof.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">5. Who is the traveler?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says: Traveler: Aarav Sharma</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Aarav Sharma</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Traveler: Aarav Sharma</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">6. What are the trip dates?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Trip dates: August 4, 2026 to August 9, 2026<br>2. Booking reference: KLR-TRIP-4926</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">August 4, 2026, August 9, 2026</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Trip dates: August 4, 2026 to August 9, 2026</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">7. What is planned on August 6, 2026?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. August 6, 2026: Drive from Kochi to Munnar and stop at Cheeyappara waterfalls.<br>2. Trip dates: August 4, 2026 to August 9, 2026<br>3. August 4, 2026: Arrive in Kochi at 2:15 PM, check in at Harbor Lane Hotel, evening walk at<br>4. August 5, 2026: Visit Mattancherry Palace, Jewish Synagogue area, and Marine Drive.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Cheeyappara waterfalls</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: August 6, 2026: Drive from Kochi to Munnar and stop at Cheeyappara waterfalls.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">8. When is the return flight?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. August 9, 2026: Return to Kochi airport for the 6:40 PM flight.<br>2. Synthetic travel itinerary for date and plan retrieval testing<br>3. Trip dates: August 4, 2026 to August 9, 2026<br>4. Booking reference: KLR-TRIP-4926</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">6:40 PM</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: August 9, 2026: Return to Kochi airport for the 6:40 PM flight.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">9. What should the traveler carry?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Carry rain jackets because August is monsoon season in Kerala.<br>2. Keep printed ID proof for hotel check-in and park entry.<br>3. Traveler: Aarav Sharma</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">rain jackets, ID proof</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Carry rain jackets because August is monsoon season in Kerala.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">10. What is the booking reference?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says: Booking reference: KLR-TRIP-4926</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">KLR-TRIP-4926</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Booking reference: KLR-TRIP-4926</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">11. What is the estimated road travel time from Kochi to Munnar?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Estimated road travel from Kochi to Munnar is 4.5 hours without long stops.<br>2. Destination: Kochi and Munnar, Kerala<br>3. August 6, 2026: Drive from Kochi to Munnar and stop at Cheeyappara waterfalls.<br>4. Synthetic travel itinerary for date and plan retrieval testing</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">4.5 hours</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Estimated road travel from Kochi to Munnar is 4.5 hours without long stops.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">12. What is the total emergency reserve?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Emergency reserve: INR 10,000<br>2. Hotels: INR 42,000<br>3. Transport: INR 18,500<br>4. Activities: INR 9,000</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">INR 10,000</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Emergency reserve: INR 10,000</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article>
+  </section><section class="pdf-section">
+    <h2>04_vendor_invoice_contract.pdf</h2>
+    <p class="note">Questions, actual responses, citations, expected keywords, and issue classification for this PDF.</p>
+    <article class="qa-card">
+        <div class="qa-head">
+          <div class="question">1. Summarize this document.</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Summary of Vendor Invoice and Service Agreement:<br>1. Synthetic finance and contract document for obligation testing<br>2. Vendor: Nimbus Data Services Pvt Ltd<br>3. Customer: Orion Retail Labs<br>4. Invoice number: NDS-INV-2026-0817<br>5. Invoice date: June 30, 2026</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Nimbus Data Services, Orion Retail Labs</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic finance and contract document for obligation testing</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">2. What are the key takeaways?</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Key takeaways from Vendor Invoice and Service Agreement:<br>1. Invoice number: NDS-INV-2026-0817<br>2. Invoice date: June 30, 2026<br>3. Payment due date: July 30, 2026<br>4. Total amount due: INR 8,72,450 including taxes.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">payment, incident</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Invoice number: NDS-INV-2026-0817</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): incident.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">3. List action items.</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Action items / next steps found in Vendor Invoice and Service Agreement:<br>1. Invoice date: June 30, 2026<br>2. Payment due date: July 30, 2026<br>3. Total amount due: INR 8,72,450 including taxes.<br>4. Payment term: Net 30 from invoice date.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">July 5, 2026, notify Orion</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Invoice date: June 30, 2026</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): July 5, 2026, notify Orion.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">4. What should I pay attention to?</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Pay attention to these details in Vendor Invoice and Service Agreement:<br>1. Invoice number: NDS-INV-2026-0817<br>2. Invoice date: June 30, 2026<br>3. Payment due date: July 30, 2026<br>4. Total amount due: INR 8,72,450 including taxes.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">payment, Confidential data</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Invoice number: NDS-INV-2026-0817</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): Confidential data.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">5. Who is the vendor?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Vendor: Nimbus Data Services Pvt Ltd<br>2. The vendor must notify Orion within 2 hours of a critical data pipeline incident.<br>3. Customer: Orion Retail Labs</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Nimbus Data Services</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Vendor: Nimbus Data Services Pvt Ltd</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">6. What is the invoice number?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Invoice number: NDS-INV-2026-0817<br>2. Bank transfer reference must include the invoice number.<br>3. Invoice date: June 30, 2026<br>4. Payment term: Net 30 from invoice date.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">NDS-INV-2026-0817</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Invoice number: NDS-INV-2026-0817</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">7. What is the total amount due?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Total amount due: INR 8,72,450 including taxes.<br>2. Payment due date: July 30, 2026<br>3. Payment term: Net 30 from invoice date.<br>4. Late payment fee: 1.5 percent per month after the due date.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">INR 8,72,450</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Total amount due: INR 8,72,450 including taxes.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">8. What is the payment due date?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Payment due date: July 30, 2026<br>2. Late payment fee: 1.5 percent per month after the due date.<br>3. Payment term: Net 30 from invoice date.<br>4. Invoice date: June 30, 2026</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">July 30, 2026</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Payment due date: July 30, 2026</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">9. What is the late payment fee?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Late payment fee: 1.5 percent per month after the due date.<br>2. Payment due date: July 30, 2026<br>3. Payment term: Net 30 from invoice date.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">1.5 percent</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Late payment fee: 1.5 percent per month after the due date.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">10. What must the vendor do for critical incidents?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Vendor: Nimbus Data Services Pvt Ltd<br>2. The vendor must notify Orion within 2 hours of a critical data pipeline incident.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">2 hours, critical data pipeline incident</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Vendor: Nimbus Data Services Pvt Ltd</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">11. What must Orion provide before July 5, 2026?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Orion must provide VPN access and updated runbook links before July 5, 2026.<br>2. Payment due date: July 30, 2026<br>3. Customer: Orion Retail Labs<br>4. Invoice number: NDS-INV-2026-0817</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">VPN access, runbook</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Orion must provide VPN access and updated runbook links before July 5, 2026.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">12. What is the termination notice period?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says: Either party may terminate with 30 days written notice.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">30 days written notice</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Either party may terminate with 30 days written notice.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">13. What data security restriction is mentioned?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Vendor: Nimbus Data Services Pvt Ltd<br>2. Monthly data pipeline monitoring for 22 production workflows.<br>3. The vendor must notify Orion within 2 hours of a critical data pipeline incident.<br>4. Confidential data must not be exported outside the approved analytics workspace.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">Confidential data, approved analytics workspace</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Vendor: Nimbus Data Services Pvt Ltd</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article>
+  </section><section class="pdf-section">
+    <h2>05_hr_remote_work_policy.pdf</h2>
+    <p class="note">Questions, actual responses, citations, expected keywords, and issue classification for this PDF.</p>
+    <article class="qa-card">
+        <div class="qa-head">
+          <div class="question">1. Summarize this document.</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Summary of Remote Work and Security Policy:<br>1. Synthetic HR policy for rule, exception, and action-item testing<br>2. This policy defines remote work expectations for full-time employees and contractors.<br>3. It applies to engineering, support, operations, finance, and product teams.<br>4. The policy owner is the People Operations team.<br>5. Employees with at least 60 days of tenure may request hybrid or remote work.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">remote work, People Operations</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic HR policy for rule, exception, and action-item testing</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">2. What are the key takeaways?</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Key takeaways from Remote Work and Security Policy:<br>1. Synthetic HR policy for rule, exception, and action-item testing<br>2. This policy defines remote work expectations for full-time employees and contractors.<br>3. The policy owner is the People Operations team.<br>4. Managers must approve requests based on role requirements, performance, and security constraints.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">VPN, security</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic HR policy for rule, exception, and action-item testing</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): VPN.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">3. List action items.</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Action items / next steps found in Remote Work and Security Policy:<br>1. The policy owner is the People Operations team.<br>2. Managers must approve requests based on role requirements, performance, and security constraints.<br>3. All remote devices must use full-disk encryption and automatic screen lock after 5 minutes.<br>4. Source code must not be copied to personal cloud storage or unmanaged drives.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">September 30, 2026, approval</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: The policy owner is the People Operations team.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): September 30, 2026, approval.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">4. What should I pay attention to?</div>
+          <div class="badge fail">Issue</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">Pay attention to these details in Remote Work and Security Policy:<br>1. Synthetic HR policy for rule, exception, and action-item testing<br>2. This policy defines remote work expectations for full-time employees and contractors.<br>3. The policy owner is the People Operations team.<br>4. Managers must approve requests based on role requirements, performance, and security constraints.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">VPN, lost devices</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Synthetic HR policy for rule, exception, and action-item testing</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text fail">Answer missing expected keyword(s): VPN, lost devices.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">5. Who owns the policy?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. The policy owner is the People Operations team.<br>2. Managers must approve requests based on role requirements, performance, and security constraints.<br>3. VPN is mandatory for production systems and customer data tools.<br>4. Synthetic HR policy for rule, exception, and action-item testing</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">People Operations</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: The policy owner is the People Operations team.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">6. Who is eligible for remote work?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. This policy defines remote work expectations for full-time employees and contractors.<br>2. Employees with at least 60 days of tenure may request hybrid or remote work.<br>3. Temporary international remote work requires approval 14 days before travel.<br>4. The policy owner is the People Operations team.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">60 days of tenure</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: This policy defines remote work expectations for full-time employees and contractors.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">7. What must managers consider before approval?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Managers must approve requests based on role requirements, performance, and security constraints.<br>2. Contractors require sponsor approval before accessing systems from outside company offices.<br>3. Temporary international remote work requires approval 14 days before travel.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">role requirements, performance, security constraints</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Managers must approve requests based on role requirements, performance, and security constraints.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">8. What is mandatory for production systems?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. VPN is mandatory for production systems and customer data tools.<br>2. Contractors require sponsor approval before accessing systems from outside company offices.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">VPN</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: VPN is mandatory for production systems and customer data tools.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">9. How quickly must lost devices be reported?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Lost devices must be reported to IT Security within 1 hour.<br>2. All remote devices must use full-disk encryption and automatic screen lock after 5 minutes.<br>3. Employees with at least 60 days of tenure may request hybrid or remote work.<br>4. Contractors require sponsor approval before accessing systems from outside company offices.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">1 hour</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Lost devices must be reported to IT Security within 1 hour.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">10. How far in advance is international remote work approval required?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Temporary international remote work requires approval 14 days before travel.<br>2. Employees with at least 60 days of tenure may request hybrid or remote work.<br>3. Contractors require sponsor approval before accessing systems from outside company offices.<br>4. All remote devices must use full-disk encryption and automatic screen lock after 5 minutes.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">14 days before travel</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Temporary international remote work requires approval 14 days before travel.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">11. When is annual security training due?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Employees must complete annual security training by September 30, 2026.<br>2. Employees with at least 60 days of tenure may request hybrid or remote work.<br>3. The next policy review is scheduled for October 15, 2026.<br>4. Managers must approve requests based on role requirements, performance, and security constraints.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">September 30, 2026</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Employees must complete annual security training by September 30, 2026.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">12. When do exceptions expire?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. Exceptions expire after 90 days unless People Operations renews them in writing.<br>2. Employees with at least 60 days of tenure may request hybrid or remote work.<br>3. Employees must complete annual security training by September 30, 2026.<br>4. The next policy review is scheduled for October 15, 2026.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">90 days</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: Exceptions expire after 90 days unless People Operations renews them in writing.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">13. When is the next policy review?</div>
+          <div class="badge pass">OK</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">The document says:<br>1. The next policy review is scheduled for October 15, 2026.<br>2. Employees with at least 60 days of tenure may request hybrid or remote work.<br>3. Employees must complete annual security training by September 30, 2026.<br>4. Synthetic HR policy for rule, exception, and action-item testing</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">October 15, 2026</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: The next policy review is scheduled for October 15, 2026.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text pass">No answer issue found in this run.</p>
+          </div>
+        </div>
+      </article>
+  </section><section class="pdf-section">
+    <h2>06_blank_scanned_like_pdf.pdf</h2>
+    <p class="note">Questions, actual responses, citations, expected keywords, and issue classification for this PDF.</p>
+    <article class="qa-card">
+        <div class="qa-head">
+          <div class="question">1. Summarize this document.</div>
+          <div class="badge warn">Expected Limitation</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">I could not extract readable text from 06_blank_scanned_like_pdf.pdf. This manual mode can preview the PDF, but summaries need extractable text.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">could not extract readable text</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: No extractable text was found in the uploaded PDF.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text warn">Expected extraction limitation: no readable text was available, and the answer reported that limitation.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">2. What are the key takeaways?</div>
+          <div class="badge warn">Expected Limitation</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">I could not extract readable text from 06_blank_scanned_like_pdf.pdf. This manual mode can preview the PDF, but summaries need extractable text.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">could not extract readable text</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: No extractable text was found in the uploaded PDF.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text warn">Expected extraction limitation: no readable text was available, and the answer reported that limitation.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">3. What text can you read from this document?</div>
+          <div class="badge warn">Expected Limitation</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">I could not extract readable text from 06_blank_scanned_like_pdf.pdf. This manual mode can preview the PDF, but summaries need extractable text.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">could not extract readable text</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: No extractable text was found in the uploaded PDF.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text warn">Expected extraction limitation: no readable text was available, and the answer reported that limitation.</p>
+          </div>
+        </div>
+      </article><article class="qa-card">
+        <div class="qa-head">
+          <div class="question">4. Does this document contain extractable text?</div>
+          <div class="badge warn">Expected Limitation</div>
+        </div>
+        <div class="qa-body">
+          <div class="answer">
+            <p class="label">Actual Answer</p>
+            <div class="answer-text">I could not extract readable text from 06_blank_scanned_like_pdf.pdf. This manual mode can preview the PDF, but summaries need extractable text.</div>
+          </div>
+          <div class="details">
+            <p class="label">Expected Keywords</p>
+            <p class="small">could not extract readable text</p>
+            <p class="label">Citation</p>
+            <p class="small">Page 1: No extractable text was found in the uploaded PDF.</p>
+            <p class="label">Issue With Answer</p>
+            <p class="small issue-text warn">Expected extraction limitation: no readable text was available, and the answer reported that limitation.</p>
+          </div>
+        </div>
+      </article>
+  </section>
+</body>
+</html>

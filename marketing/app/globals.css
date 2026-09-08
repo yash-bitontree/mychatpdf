@@ -1,0 +1,263 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Inter, matching the font the product app declares in styles.css */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Viewports tall enough for pinned scrollytelling stages (no clipping). */
+@custom-variant tall (@media (min-height: 53rem));
+
+@theme {
+  /* Product brand tokens, mirrored from frontend/tailwind.config.js and
+     frontend/src/styles.css so marketing matches the app exactly. */
+  --color-sea: #2068f8;
+  --color-grape: #8040f0;
+  --color-ink: #17212b;
+  --color-mist: #f6f8fb;
+  --color-ice: #eef4ff;
+  --color-lavender-soft: #f4efff;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-float-slow: float 11s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 3.2s ease-in-out infinite;
+  --animate-marquee: marquee 36s linear infinite;
+  --animate-gradient-pan: gradient-pan 8s ease-in-out infinite;
+  --animate-blob: blob 16s ease-in-out infinite;
+  --animate-draw: draw 2.4s var(--ease-out-expo) forwards;
+  --animate-typing-dot: typing-dot 1.2s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.92); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes gradient-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(28px, -34px) scale(1.08); }
+  66% { transform: translate(-22px, 22px) scale(0.94); }
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes typing-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+    /* clip (not hidden) so un-revealed translated elements can't widen the
+       page on phones while position:sticky keeps working */
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-grape) 22%, transparent);
+  }
+
+  :focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--color-sea) 35%, transparent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  body {
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll-reveal system. Client component components/motion/reveal.tsx toggles
+   data-inview; everything visual lives here so the JS stays tiny.
+   Hidden state is gated behind the .js class (set by an inline script in the
+   root layout) so content stays visible without JavaScript.
+--------------------------------------------------------------------------- */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.7s var(--ease-out-expo),
+    transform 0.9s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.js [data-reveal="left"] { transform: translateX(-34px); }
+.js [data-reveal="right"] { transform: translateX(34px); }
+.js [data-reveal="zoom"] { transform: scale(0.92); }
+.js [data-reveal="blur"] { transform: none; filter: blur(10px); }
+
+.js [data-reveal][data-inview] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  /* one-shot animation: release the compositor layer after entry */
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Brand utilities
+--------------------------------------------------------------------------- */
+@utility text-gradient {
+  background-image: linear-gradient(120deg, var(--color-sea), var(--color-grape));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@utility bg-brand-gradient {
+  background-image: linear-gradient(135deg, var(--color-sea) 0%, var(--color-grape) 100%);
+}
+
+@utility bg-brand-gradient-animated {
+  background-image: linear-gradient(120deg, var(--color-sea), var(--color-grape), var(--color-sea));
+  background-size: 300% 300%;
+  animation: var(--animate-gradient-pan);
+}
+
+/* Soft hero wash matching the product's auth screens */
+@utility bg-hero-wash {
+  background-image: linear-gradient(135deg, #f8fbfc 0%, var(--color-ice) 46%, var(--color-lavender-soft) 100%);
+}
+
+/* Faint dot grid used behind hero and dark sections */
+@utility bg-dot-grid {
+  background-image: radial-gradient(circle, color-mix(in oklab, var(--color-slate-400) 32%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@utility bg-dot-grid-dark {
+  background-image: radial-gradient(circle, color-mix(in oklab, var(--color-slate-500) 36%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Card with a 1px gradient border via nested backgrounds */
+@utility card-gradient-border {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--color-white), var(--color-white)) padding-box,
+    linear-gradient(135deg, color-mix(in oklab, var(--color-sea) 35%, var(--color-slate-200)), var(--color-slate-200) 40%, color-mix(in oklab, var(--color-grape) 35%, var(--color-slate-200))) border-box;
+}
+
+@utility shadow-glow {
+  box-shadow: 0 14px 28px rgba(32, 104, 248, 0.24);
+}
+
+/* Big soft ambient card shadow, same as the product's shadow-panel */
+@utility shadow-panel {
+  box-shadow: 0 18px 45px rgba(23, 33, 43, 0.08);
+}
+
+@utility glass {
+  background: color-mix(in oklab, var(--color-white) 72%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Marquee track: children are duplicated once in JSX; track scrolls 50% */
+@utility marquee-track {
+  display: flex;
+  width: max-content;
+  animation: var(--animate-marquee);
+}
+
+@utility marquee-reverse {
+  animation-direction: reverse;
+}
+
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Film-grain overlay: kills the "flat gradient" look on hero/CTA/stats.
+   Apply to an absolutely-positioned, aria-hidden div at low opacity. */
+@utility bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* Cursor-following glow on cards; TiltCard writes --mx/--my. */
+@utility spotlight {
+  position: relative;
+}
+
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    360px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklab, var(--color-sea) 10%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .spotlight:hover::before {
+    opacity: 1;
+  }
+}
+
+/* Feature-card hover lift, kept in CSS so cards stay server components */
+@utility card-lift {
+  transition: transform 0.45s var(--ease-out-expo), box-shadow 0.45s var(--ease-out-expo), border-color 0.45s var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+  .card-lift:hover {
+    transform: translateY(-6px);
+    box-shadow:
+      0 18px 40px -14px color-mix(in oklab, var(--color-sea) 26%, transparent),
+      0 8px 18px -10px color-mix(in oklab, var(--color-grape) 20%, transparent);
+  }
+}

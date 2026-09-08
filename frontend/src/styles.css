@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #17212b;
+  background: #f6f8fb;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(32, 104, 248, 0.35);
+  outline-offset: 2px;
+}
+
+.scrollbar-soft {
+  scrollbar-color: #a7b1bd transparent;
+  scrollbar-width: thin;
+}
+
+.auth-page,
+.auth-page * {
+  min-width: 0;
+}
+
+.brand-gradient {
+  background-image: linear-gradient(135deg, #2068f8 0%, #8040f0 100%);
+}
+
+.brand-gradient:disabled {
+  background-image: none;
+}
+
+.brand-soft-surface {
+  background:
+    linear-gradient(135deg, rgba(32, 104, 248, 0.08), rgba(128, 64, 240, 0.08)),
+    #ffffff;
+}
+
+.mychatpdf-math-display .katex-display {
+  margin: 0;
+}
+
+.mychatpdf-math-display .katex {
+  white-space: nowrap;
+}
+
+.pdf-text-layer {
+  color-scheme: only light;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  text-align: initial;
+  letter-spacing: normal;
+  word-spacing: normal;
+  caret-color: transparent;
+  transform-origin: 0 0;
+  forced-color-adjust: none;
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  text-size-adjust: none;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+
+.pdf-text-block-overlays {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pdf-text-block-overlay {
+  position: absolute;
+  border-radius: 4px;
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.pdf-text-block-overlay[data-state="hover"] {
+  background-color: rgba(100, 116, 139, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(100, 116, 139, 0.06);
+}
+
+.pdf-text-block-overlay[data-state="active"] {
+  background-color: rgba(37, 99, 235, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.16);
+}
+
+.pdf-text-block-overlay[data-state="source"] {
+  background-color: rgba(32, 104, 248, 0.14);
+  box-shadow:
+    inset 0 0 0 1px rgba(32, 104, 248, 0.22),
+    0 0 0 3px rgba(32, 104, 248, 0.06);
+}
+
+.pdf-text-layer :is(span, br) {
+  position: absolute;
+  color: transparent;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+.pdf-text-layer > :not(.markedContent),
+.pdf-text-layer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  --scale-x: 1;
+  --rotate: 0deg;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+
+.pdf-text-layer .markedContent {
+  display: contents;
+}
+
+.pdf-text-layer span[role="img"] {
+  cursor: default;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.pdf-text-layer .pdf-text-block-span {
+  cursor: text;
+}
+
+.pdf-text-layer ::selection {
+  color: transparent;
+  background-color: rgba(37, 99, 235, 0.28);
+}
